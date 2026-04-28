@@ -12,7 +12,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +25,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 
 /**
  *	Configure this web application to use OAuth 2.0.
@@ -54,16 +54,18 @@ public class OAuth2SecurityConfiguration {
 	// up the UserDetailsService that we create below. 
 	@Configuration
 	@EnableWebSecurity
-	protected static class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+	protected static class WebSecurityConfiguration {
 		
 		@Autowired
 		private UserDetailsService userDetailsService;
 		
-		@Autowired
-		protected void registerAuthentication(
-				final AuthenticationManagerBuilder auth) throws Exception {
+		@Bean
+		public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder auth =
+					http.getSharedObject(AuthenticationManagerBuilder.class);
 			auth.userDetailsService(userDetailsService)
 					.passwordEncoder(passwordEncoder());
+			return auth.build();
 		}
 
 		@Bean
@@ -88,28 +90,13 @@ public class OAuth2SecurityConfiguration {
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			
-			http.csrf().disable();
-			
-			http
-			.authorizeRequests()
-				.antMatchers("/oauth/token").anonymous();
-			
-			
-			// If you were going to reuse this class in another
-			// application, this is one of the key sections that you
-			// would want to change
-			
-			// Require all GET requests to have client "read" scope
-			http
-			.authorizeRequests()
-				.antMatchers(HttpMethod.GET, "/**")
-				.access("#oauth2.hasScope('read')");
-			
-			// Require all other requests to have "write" scope
-			http
-			.authorizeRequests()
-				.antMatchers("/**")
-				.access("#oauth2.hasScope('write')");
+			http.csrf(csrf -> csrf.disable());
+			http.authorizeHttpRequests(authorize -> authorize
+					.requestMatchers("/oauth/token").anonymous()
+					.requestMatchers(HttpMethod.GET, "/**")
+					.access(new WebExpressionAuthorizationManager("#oauth2.hasScope('read')"))
+					.requestMatchers("/**")
+					.access(new WebExpressionAuthorizationManager("#oauth2.hasScope('write')")));
 		}
 		
 	    @Override
