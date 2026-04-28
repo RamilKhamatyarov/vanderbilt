@@ -6,6 +6,7 @@
  */
 package org.magnum.mobilecloud.video.client;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -115,7 +116,8 @@ public class SecuredRestBuilder extends RestAdapter.Builder {
 					// the "Authorization" header and the value is set to "Basic " 
 					// concatenated with the Base64 client_id:client_secret value described
 					// above.
-					String base64Auth = BaseEncoding.base64().encode(new String(clientId + ":" + clientSecret).getBytes());
+					String base64Auth = BaseEncoding.base64()
+							.encode((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
 					// Add the basic authorization header
 					List<Header> headers = new ArrayList<Header>();
 					headers.add(new Header("Authorization", "Basic " + base64Auth));

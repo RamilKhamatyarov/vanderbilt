@@ -22,7 +22,6 @@ import retrofit.ErrorHandler;
 import retrofit.RestAdapter;
 import retrofit.RestAdapter.LogLevel;
 import retrofit.RetrofitError;
-import retrofit.client.ApacheClient;
 
 /**
  * A test for the Asgn2 video service

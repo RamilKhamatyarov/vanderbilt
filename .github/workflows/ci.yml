@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Run linters
+        run: ./gradlew spotlessCheck checkstyleMain checkstyleTest spotbugsMain spotbugsTest
+
+      - name: Run PMD
+        run: ./gradlew pmdMain pmdTest
+
+      - name: Build
+        run: ./gradlew clean build
