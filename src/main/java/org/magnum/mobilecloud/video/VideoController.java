@@ -1,20 +1,26 @@
 package org.magnum.mobilecloud.video;
 
-import com.google.common.collect.Lists;
+import static org.magnum.mobilecloud.video.client.VideoSvcApi.DURATION_PARAMETER;
+import static org.magnum.mobilecloud.video.client.VideoSvcApi.TITLE_PARAMETER;
+import static org.magnum.mobilecloud.video.client.VideoSvcApi.VIDEO_DURATION_SEARCH_PATH;
+import static org.magnum.mobilecloud.video.client.VideoSvcApi.VIDEO_SVC_PATH;
+import static org.magnum.mobilecloud.video.client.VideoSvcApi.VIDEO_TITLE_SEARCH_PATH;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.magnum.mobilecloud.video.repository.Video;
 import org.magnum.mobilecloud.video.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import retrofit.http.*;
-
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import static org.magnum.mobilecloud.video.client.VideoSvcApi.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class VideoController {
@@ -38,7 +44,7 @@ public class VideoController {
     @RequestMapping(value = VIDEO_SVC_PATH + "/{id}",
                     method = RequestMethod.GET)
     public @ResponseBody Video getVideoById(@PathVariable("id") long id) {
-        return repository.findOne(Long.valueOf(id));
+        return repository.findById(Long.valueOf(id)).orElse(null);
     }
 
     @RequestMapping(value = VIDEO_SVC_PATH,
@@ -51,7 +57,7 @@ public class VideoController {
     @RequestMapping(value = VIDEO_SVC_PATH + "/{id}/like",
                     method = RequestMethod.POST)
     public Void likeVideo(@PathVariable("id") long id, HttpServletResponse response) {
-        Video v = repository.findOne(Long.valueOf(id));
+        Video v = repository.findById(Long.valueOf(id)).orElse(null);
 
         if (v == null) {
             response.setStatus(404);
@@ -71,7 +77,7 @@ public class VideoController {
     @RequestMapping(value = VIDEO_SVC_PATH +  "/{id}/unlike",
                     method = RequestMethod.POST)
     public @ResponseBody Void unlikeVideo(@PathVariable("id") long id) {
-        Video v = repository.findOne(Long.valueOf(id));
+        Video v = repository.findById(Long.valueOf(id)).orElse(null);
         v.setLikes(v.getLikes() - 1);
         repository.save(v);
         return null;
@@ -79,7 +85,7 @@ public class VideoController {
 
     @RequestMapping(value = VIDEO_TITLE_SEARCH_PATH,
                     method = RequestMethod.GET)
-    public @ResponseBody Collection<Video> findByTitle(@Query(TITLE_PARAMETER) String title) {
+    public @ResponseBody Collection<Video> findByTitle(@RequestParam(TITLE_PARAMETER) String title) {
         return repository.findByName(title);
     }
 

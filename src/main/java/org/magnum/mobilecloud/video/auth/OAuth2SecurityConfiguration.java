@@ -14,6 +14,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.builders.InMemoryClientDetailsServiceBuilder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -60,7 +62,13 @@ public class OAuth2SecurityConfiguration {
 		@Autowired
 		protected void registerAuthentication(
 				final AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(userDetailsService);
+			auth.userDetailsService(userDetailsService)
+					.passwordEncoder(passwordEncoder());
+		}
+
+		@Bean
+		public PasswordEncoder passwordEncoder() {
+			return NoOpPasswordEncoder.getInstance();
 		}
 	}
 	
@@ -128,6 +136,9 @@ public class OAuth2SecurityConfiguration {
 		// A data structure used to store both a ClientDetailsService and a UserDetailsService
 		private ClientAndUserDetailsService combinedService_;
 
+		private static final String PASSWORD = "pass";
+		private static final String USER_ROLE = "USER";
+
 		/**
 		 * 
 		 * This constructor is used to setup the clients and users that will be able to login to the
@@ -166,12 +177,12 @@ public class OAuth2SecurityConfiguration {
 			UserDetailsService svc = new InMemoryUserDetailsManager(
 					Arrays.asList(
 							User.create("admin", "pass", "ADMIN", "USER"),
-							User.create("user0", "pass", "USER"),
-							User.create("user1", "pass", "USER"),
-							User.create("user2", "pass", "USER"),
-							User.create("user3", "pass", "USER"),
-							User.create("user4", "pass", "USER"),
-							User.create("user5", "pass", "USER")));
+							User.create("user0", PASSWORD, USER_ROLE),
+							User.create("user1", PASSWORD, USER_ROLE),
+							User.create("user2", PASSWORD, USER_ROLE),
+							User.create("user3", PASSWORD, USER_ROLE),
+							User.create("user4", PASSWORD, USER_ROLE),
+							User.create("user5", PASSWORD, USER_ROLE)));
 
 			// Since clients have to use BASIC authentication with the client's id/secret,
 			// when sending a request for a password grant, we make each client a user
