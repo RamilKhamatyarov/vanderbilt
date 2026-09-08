@@ -45,7 +45,7 @@ dependencies {
     implementation 'org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE'
     implementation 'org.hsqldb:hsqldb'
 
-    implementation 'com.google.guava:guava:33.6.0-jre'
+    implementation 'com.google.guava:guava:33.7.1-jre'
     implementation 'org.apache.commons:commons-lang3:3.20.0'
     implementation 'commons-io:commons-io:2.22.0'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
