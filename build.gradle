@@ -63,7 +63,7 @@ dependencies {
     testImplementation 'org.apache.httpcomponents:httpclient:4.5.14'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    spotbugs 'com.github.spotbugs:spotbugs:4.10.3'
+    spotbugs 'com.github.spotbugs:spotbugs:4.10.4'
     spotbugs 'org.apache.commons:commons-lang3:3.20.0'
 }
 
